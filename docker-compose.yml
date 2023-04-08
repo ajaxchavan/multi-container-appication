@@ -6,16 +6,24 @@ services:
     image: 'postgres'
     environment:
       - POSTGRES_PASSWORD=postgres_password
+  nginx:
+    build:
+      dockerfile: Dockerfile.Dev
+      context: ./nginx
+    ports:
+      - '4001:80'
+    restart: always
+    depends_on:
+      - client
+      - api
   client:
     build:
       dockerfile: Dockerfile.Dev
       context: ./client
-    ports:
-      - '3000:3000'
     volumes:
       - /app/node_modules
-      - ./server:/app
-  server:
+      - ./client:/app
+  api:
     build:
       dockerfile: Dockerfile.Dev
       context: ./server
@@ -36,7 +44,7 @@ services:
       context: ./worker
     volumes:
        - /app/node_modules
-      - ./server:/app
+       - ./worker:/app
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
